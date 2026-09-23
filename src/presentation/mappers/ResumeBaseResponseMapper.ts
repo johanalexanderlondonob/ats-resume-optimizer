@@ -47,6 +47,7 @@ export class ResumeBaseResponseMapper {
                 finishDate: experience.finishDate,
                 company: experience.company,
                 position: experience.position,
+                hidden: experience.hidden,
                 responsibilities: (experience.responsibilities ?? []).map((responsibility) => ({
                     id: responsibility.id!,
                     description: responsibility.description,

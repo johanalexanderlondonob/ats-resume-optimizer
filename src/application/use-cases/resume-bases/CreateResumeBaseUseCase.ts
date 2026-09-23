@@ -73,6 +73,7 @@ export class CreateResumeBaseUseCase {
                 company: experience.company,
                 position: experience.position,
                 finishDate: experience.finishDate,
+                hidden: experience.hidden,
             });
 
             // Relacionamos las responsabilidades con la experiencia laboral.

@@ -85,7 +85,10 @@ export default function ResumeBaseCandidate({ resumeBase }: { resumeBase: Resume
     const candidate = resumeBase.candidate;
     const summary = resumeBase.professionalProfile ?? resumeBase.aboutMe;
 
-    const experiences = [...(resumeBase.experiences ?? [])].sort(byStartDateDesc);
+    // Las experiencias ocultas se descartan antes de renderizar el documento, así no llegan ni a la vista previa ni al PDF.
+    const allExperiences = resumeBase.experiences ?? [];
+    const experiences = allExperiences.filter((experience) => !experience.hidden).sort(byStartDateDesc);
+    const hiddenExperiencesCount = allExperiences.length - experiences.length;
     const educations = [...(resumeBase.educations ?? [])].sort(byStartDateDesc);
     const projects = resumeBase.projects ?? [];
     const languages = resumeBase.languages ?? [];
@@ -119,6 +122,13 @@ export default function ResumeBaseCandidate({ resumeBase }: { resumeBase: Resume
                         Expectativa salarial: <span
                         className="font-medium text-gray-700">{ formatSalary(resumeBase.salaryAspiration, resumeBase.salaryCurrency) }</span>
                         <span className="ml-2 text-xs text-gray-400">(no se incluye en el PDF)</span>
+                        { hiddenExperiencesCount > 0 && (
+                            <span className="mt-1 block text-xs text-gray-400">
+                                { hiddenExperiencesCount === 1
+                                    ? "1 experiencia laboral oculta (no se incluye en el PDF)"
+                                    : `${ hiddenExperiencesCount } experiencias laborales ocultas (no se incluyen en el PDF)` }
+                            </span>
+                        ) }
                     </p>
                     <button
                         type="button"

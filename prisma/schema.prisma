@@ -124,6 +124,7 @@ model Experience {
   finishDate       DateTime?
   company          String
   position         String
+  hidden           Boolean          @default(false) // Oculta la experiencia en la hoja de vida (vista previa y PDF) sin eliminarla.
   responsibilities Responsibility[] // La primer responsabilidad debe dar el contexto de lo que hizo en la compañía. La intención es que se aplique la fórmula: logré X haciendo Y con el resultado Z. Cada responsabilidad contiene esta fórmula.
 }
 

@@ -37,6 +37,7 @@ export interface ExperienceResponseDTO {
     finishDate?: Date | null;
     company: string;
     position: string;
+    hidden: boolean;
     responsibilities: ResponsibilityResponseDTO[];
 }
 

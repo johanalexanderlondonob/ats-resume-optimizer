@@ -72,6 +72,7 @@ export class UpdateResumeBaseUseCase {
                 company: experience.company,
                 position: experience.position,
                 finishDate: experience.finishDate,
+                hidden: experience.hidden,
             });
 
             experienceEntity.responsibilities = experience.responsibilities?.map((responsibility) => new Responsibility({

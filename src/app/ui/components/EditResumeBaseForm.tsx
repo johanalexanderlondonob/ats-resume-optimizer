@@ -66,6 +66,7 @@ interface ExperienceRow {
     startDate: string;
     finishDate: string;
     isCurrent: boolean;
+    hidden: boolean;
     responsibilities: string;
 }
 
@@ -120,6 +121,7 @@ function newExperience(): ExperienceRow {
         startDate: '',
         finishDate: '',
         isCurrent: false,
+        hidden: false,
         responsibilities: '',
     };
 }
@@ -162,6 +164,7 @@ function experiencesFrom(resumeBase: ResumeBaseResponseDTO): ExperienceRow[] {
         startDate: toMonthInput(experience.startDate),
         finishDate: toMonthInput(experience.finishDate),
         isCurrent: !experience.finishDate,
+        hidden: experience.hidden ?? false,
         responsibilities: experience.responsibilities.map(responsibility => responsibility.description).join('\n'),
     }));
 }
@@ -359,6 +362,7 @@ export default function EditResumeBaseForm({ candidateId, resumeBase }: {
                 position: row.position.trim(),
                 startDate: row.startDate,
                 finishDate: row.isCurrent ? undefined : (row.finishDate || undefined),
+                hidden: row.hidden,
                 responsibilities: row.responsibilities
                     .split('\n')
                     .map(line => line.trim())
@@ -603,7 +607,7 @@ export default function EditResumeBaseForm({ candidateId, resumeBase }: {
                     />
                     <div className="mt-6 space-y-4">
                         { experiences.map(row => (
-                            <div key={ row.key } className={ CARD_CLASS }>
+                            <div key={ row.key } className={ `${ CARD_CLASS } ${ row.hidden ? 'border-dashed bg-gray-50 dark:bg-white/5' : '' }` }>
                                 <RemoveRowButton label="Eliminar experiencia" onClick={ () => setExperiences(prev => prev.filter(e => e.key !== row.key)) }/>
                                 <div className="grid grid-cols-1 gap-4 pr-8 sm:grid-cols-2">
                                     <div>
@@ -625,6 +629,13 @@ export default function EditResumeBaseForm({ candidateId, resumeBase }: {
                                     <div className="flex items-center gap-2 sm:col-span-2">
                                         <input id={ `current-exp-${ row.key }` } type="checkbox" checked={ row.isCurrent } onChange={ e => updateExperience(row.key, { isCurrent: e.target.checked }) } className="size-4 rounded border-gray-300 text-cyan-600 focus:ring-cyan-600"/>
                                         <label htmlFor={ `current-exp-${ row.key }` } className="text-sm text-gray-700 dark:text-gray-300">Cargo actual</label>
+                                    </div>
+                                    <div className="flex items-center gap-2 sm:col-span-2">
+                                        <input id={ `hidden-exp-${ row.key }` } type="checkbox" checked={ row.hidden } onChange={ e => updateExperience(row.key, { hidden: e.target.checked }) } className="size-4 rounded border-gray-300 text-cyan-600 focus:ring-cyan-600"/>
+                                        <label htmlFor={ `hidden-exp-${ row.key }` } className="text-sm text-gray-700 dark:text-gray-300">
+                                            Ocultar en la hoja de vida
+                                            <span className="ml-1 text-gray-400">(se conserva, pero no aparece en la vista previa ni en el PDF)</span>
+                                        </label>
                                     </div>
                                     <div className="sm:col-span-2">
                                         <label className={ LABEL_CLASS }>Responsabilidades y logros</label>

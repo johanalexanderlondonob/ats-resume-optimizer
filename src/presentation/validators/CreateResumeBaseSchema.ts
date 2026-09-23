@@ -23,6 +23,7 @@ const CreateExperienceSchema = zod.object({
     finishDate: zod.coerce.date().optional(),
     company: zod.string('La empresa es requisito').trim().min(1),
     position: zod.string('El cargo es requisito').trim().min(1),
+    hidden: zod.boolean().optional(),
     responsibilities: zod.array(CreateResponsibilitySchema).optional(),
 });
 

@@ -7,6 +7,7 @@ export interface ExperienceProps {
     finishDate?: Date | null;
     company: string;
     position: string;
+    hidden?: boolean;
     responsibilities?: Responsibility[];
     resumeBase: ResumeBase;
     resumeBaseId: string;
@@ -21,6 +22,7 @@ export class Experience {
     finishDate?: Date | null;
     company: string;
     position: string;
+    hidden: boolean;
     responsibilities?: Responsibility[];
 
     constructor(
@@ -32,6 +34,7 @@ export class Experience {
         this.company = props.company;
         this.position = props.position;
         this.finishDate = props.finishDate;
+        this.hidden = props.hidden ?? false;
         this.responsibilities = props.responsibilities;
     }
 

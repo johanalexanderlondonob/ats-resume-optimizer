@@ -21,6 +21,7 @@ export interface CreateExperienceDTO {
     finishDate?: Date | null;
     company: string;
     position: string;
+    hidden?: boolean;
     responsibilities?: CreateResponsibilityDTO[];
 }
 

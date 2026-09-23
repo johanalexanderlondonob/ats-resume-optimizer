@@ -88,6 +88,7 @@ export class ResumeBaseMapper {
                     finishDate: experience.finishDate,
                     id: experience.id,
                     position: experience.position,
+                    hidden: experience.hidden,
                     resumeBase: resumeBase,
                     resumeBaseId: experience.resumeBaseId,
                     startDate: experience.startDate
@@ -230,6 +231,7 @@ export class ResumeBaseMapper {
                     finishDate: experience.finishDate,
                     company: experience.company,
                     position: experience.position,
+                    hidden: experience.hidden,
                     responsibilities: experience.responsibilities?.length ? {
                         create: experience.responsibilities.map((responsibility) => ({
                             id: responsibility.id,
