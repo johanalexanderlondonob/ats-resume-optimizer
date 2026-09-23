@@ -257,6 +257,18 @@ const CATEGORIES: CategorySeed[] = [
         ],
     },
     {
+        category: "Infraestructura y Soporte TI",
+        skills: [
+            { name: "Administración de Servidores Windows", description: "Instalación, configuración y mantenimiento de servidores Windows Server, usuarios, permisos y servicios." },
+            { name: "Administración de Servidores Linux", description: "Instalación, configuración y mantenimiento de servidores Linux (Debian / Ubuntu), incluidos VPS." },
+            { name: "Redes LAN y VPN (MikroTik)", description: "Diseño, configuración y auditoría de redes locales y VPN, gestión de tráfico y control de accesos." },
+            { name: "Copias de Seguridad y Recuperación de Datos", description: "Diseño e implementación de políticas de respaldo y restauración para reducir el riesgo de pérdida de información." },
+            { name: "Soporte Técnico y Mesa de Ayuda", description: "Atención y resolución de incidentes de hardware, software y conectividad para usuarios finales." },
+            { name: "Mantenimiento de Equipos de Cómputo", description: "Instalación, mantenimiento preventivo y correctivo, y reparación de equipos de cómputo y periféricos." },
+            { name: "Ofimática", description: "Manejo avanzado de herramientas de productividad: procesador de texto, hojas de cálculo y presentaciones." },
+        ],
+    },
+    {
         category: "Habilidades Blandas",
         skills: [
             { name: "Comunicación Efectiva", description: "Capacidad de transmitir ideas técnicas de forma clara a audiencias técnicas y no técnicas." },
