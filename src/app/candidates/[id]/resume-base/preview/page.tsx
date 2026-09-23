@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import ResumeBaseCandidate from "@/app/ui/components/ResumeBaseCandidate";
 import ThemeInitScript from "@/app/ui/resume-theme/ThemeInitScript";
 import type { ResumeBaseResponseDTO } from "@/presentation/dto/ResumeBaseResponseDTO";
@@ -29,6 +30,14 @@ export default async function CandidateResumeBasePage({ params }: { params: Prom
     return <>
         <main className="min-h-screen bg-gray-50 py-10 print:bg-white print:py-0">
             <div className="mx-auto max-w-3xl px-4 print:max-w-none print:px-0">
+                <div className="mb-4 flex justify-end print:hidden">
+                    <Link
+                        href={`/candidates/${id}/resume-base/edit`}
+                        className="text-sm font-semibold text-cyan-600 dark:text-cyan-400"
+                    >
+                        Editar hoja de vida
+                    </Link>
+                </div>
                 <ResumeBaseCandidate resumeBase={resumeBase} />
                 <ThemeInitScript />
             </div>

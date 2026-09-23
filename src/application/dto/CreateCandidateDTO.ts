@@ -7,6 +7,8 @@ export interface CreateCandidateDTO {
     city: string;
     country: string;
     portfolio?: string;
+    github?: string;
+    linkedin?: string;
     resumes?: OptimizedResume[];
     createdAt?: Date;
     updatedAt?: Date;

@@ -21,6 +21,7 @@ import {
     Responsibility as PrismaResponsibility,
     ResumeBase as PrismaResumeBase,
     ResumeBaseSkill as PrismaResumeBaseSkill,
+    Sector as PrismaSector,
     Skill as PrismaSkill,
 } from "@/generated/prisma/client";
 import { CandidateMapper } from "@/infrastructure/database/prisma/mappers/CandidateMapper";
@@ -34,8 +35,12 @@ type PrismaProjectWithAchievements = PrismaProject & {
     achievements?: PrismaAchievement[],
 };
 
+type PrismaSkillWithSector = PrismaSkill & {
+    sector?: PrismaSector,
+};
+
 type PrismaResumeBaseSkillWithSkill = PrismaResumeBaseSkill & {
-    skill?: PrismaSkill,
+    skill?: PrismaSkillWithSector,
 };
 
 type PrismaResumeBaseWithRelations = PrismaResumeBase & {
@@ -110,6 +115,7 @@ export class ResumeBaseMapper {
                     resumeBaseId: project.resumeBaseId,
                     role: project.role,
                     title: project.title,
+                    evidenceUrl: project.evidenceUrl,
                     achievements: []
                 }
             );
@@ -119,7 +125,6 @@ export class ResumeBaseMapper {
                     new Achievement(
                         {
                             description: achievement.description,
-                            evidence: achievement.evidence,
                             id: achievement.id,
                             metric: achievement.metric,
                             project: projectEntity,
@@ -173,6 +178,29 @@ export class ResumeBaseMapper {
         return resumeBase;
     }
 
+    /**
+     * Para la edición reemplazamos por completo la hoja de vida: el repositorio
+     * borra primero todas las filas hijas y este mapper vuelve a crearlas. El
+     * `id` y el `candidateId` son inmutables, por eso no se incluyen.
+     */
+    static toPersistenceUpdate(resumeBase: ResumeBase): Prisma.ResumeBaseUncheckedUpdateInput {
+        const persistence = ResumeBaseMapper.toPersistence(resumeBase);
+
+        return {
+            profession: persistence.profession,
+            aboutMe: persistence.aboutMe,
+            professionalProfile: persistence.professionalProfile,
+            salaryAspiration: persistence.salaryAspiration,
+            salaryCurrency: persistence.salaryCurrency,
+            educations: persistence.educations,
+            experiences: persistence.experiences,
+            projects: persistence.projects,
+            languages: persistence.languages,
+            references: persistence.references,
+            skills: persistence.skills,
+        };
+    }
+
     static toPersistence(resumeBase: ResumeBase): Prisma.ResumeBaseUncheckedCreateInput {
         return {
             id: resumeBase.id,
@@ -215,12 +243,12 @@ export class ResumeBaseMapper {
                     id: project.id,
                     title: project.title,
                     role: project.role,
+                    evidenceUrl: project.evidenceUrl,
                     achievements: project.achievements?.length ? {
                         create: project.achievements.map((achievement) => ({
                             id: achievement.id,
                             description: achievement.description,
                             metric: achievement.metric,
-                            evidence: achievement.evidence,
                         })),
                     } : undefined,
                 })),

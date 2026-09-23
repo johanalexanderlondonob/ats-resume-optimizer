@@ -1,6 +1,5 @@
 import type { EducationType } from "@/domain/entities/Education";
 import type { LanguageLevel } from "@/domain/entities/Language";
-import type { SkillCategory } from "@/domain/entities/Skill";
 
 export interface CandidateSummaryDTO {
     id: string;
@@ -11,6 +10,8 @@ export interface CandidateSummaryDTO {
     city: string;
     country: string;
     portfolio?: string | null;
+    github?: string | null;
+    linkedin?: string | null;
 }
 
 export interface EducationResponseDTO {
@@ -43,13 +44,13 @@ export interface AchievementResponseDTO {
     id: string;
     description: string;
     metric?: string | null;
-    evidence: string;
 }
 
 export interface ProjectResponseDTO {
     id: string;
     title: string;
     role: string;
+    evidenceUrl?: string | null;
     achievements: AchievementResponseDTO[];
 }
 
@@ -73,7 +74,8 @@ export interface ResumeBaseSkillResponseDTO {
     skillId: string;
     name?: string;
     description?: string;
-    category?: SkillCategory;
+    category?: string;
+    sector?: string;
     level?: string | null;
     yearsExperience?: number | null;
     evidence?: string | null;

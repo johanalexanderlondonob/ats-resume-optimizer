@@ -27,12 +27,12 @@ export interface CreateExperienceDTO {
 export interface CreateAchievementDTO {
     description: string;
     metric?: string | null;
-    evidence: string;
 }
 
 export interface CreateProjectDTO {
     title: string;
     role: string;
+    evidenceUrl?: string | null;
     achievements?: CreateAchievementDTO[];
 }
 

@@ -28,5 +28,11 @@ const script = `(function () {
 })();`;
 
 export default function ThemeInitScript() {
-    return <script dangerouslySetInnerHTML={ { __html: script } }/>;
+    return (
+        <script
+            type={ typeof window === 'undefined' ? 'text/javascript' : 'text/plain' }
+            suppressHydrationWarning
+            dangerouslySetInnerHTML={ { __html: script } }
+        />
+    );
 }

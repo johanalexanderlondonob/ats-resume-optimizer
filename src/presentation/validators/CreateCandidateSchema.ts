@@ -2,9 +2,9 @@ import zod from "zod";
 
 export const CreateCandidateSchema = zod.object({
     fullName: zod
-        .string('Nombre debe tener como mínimo un carácter')
+        .string('Nombre es un campo obligatorio')
         .trim()
-        .min(1),
+        .min(1, 'Nombre debe tener como mínimo un carácter'),
     email: zod
         .email('Formato de correo electrónico no válido')
         .trim(),
@@ -18,7 +18,8 @@ export const CreateCandidateSchema = zod.object({
         .trim()
         .min(10, 'Mínimo de 10 caracteres')
         .max(15, 'Máximo de 15 caracteres')
-        .optional(),
+        .optional()
+        .or(zod.literal('')),
     city: zod
         .string('La ciudad es requisito')
         .trim()
@@ -29,6 +30,16 @@ export const CreateCandidateSchema = zod.object({
         .min(2, 'Mínino de 2 caracteres'),
     portfolio: zod
         .url('Formato no válido para el portafolio')
+        .trim()
+        .optional()
+        .or(zod.literal('')),
+    github: zod
+        .url('Formato no válido para el enlace de GitHub')
+        .trim()
+        .optional()
+        .or(zod.literal('')),
+    linkedin: zod
+        .url('Formato no válido para el enlace de LinkedIn')
         .trim()
         .optional()
         .or(zod.literal('')),

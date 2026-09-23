@@ -92,6 +92,7 @@ export class CreateResumeBaseUseCase {
                 resumeBaseId: resumeBase.id!,
                 title: project.title,
                 role: project.role,
+                evidenceUrl: project.evidenceUrl,
                 achievements: [],
             });
 
@@ -100,7 +101,6 @@ export class CreateResumeBaseUseCase {
                 project: projectEntity,
                 projectId: projectEntity.id!,
                 description: achievement.description,
-                evidence: achievement.evidence,
                 metric: achievement.metric,
             })) ?? [];
 

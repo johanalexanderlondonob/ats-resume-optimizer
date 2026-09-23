@@ -1,7 +1,8 @@
 export { Candidate } from './Candidate';
 export { ResumeBase } from './ResumeBase';
 export { Education, type EducationType } from './Education';
-export { Skill, type SkillCategory } from './Skill';
+export { Sector } from './Sector';
+export { Skill } from './Skill';
 export { ResumeBaseSkill } from './ResumeBaseSkill';
 export { Experience } from './Experience';
 export { Responsibility } from './Responsibility';

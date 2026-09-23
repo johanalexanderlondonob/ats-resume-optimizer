@@ -21,6 +21,8 @@ model Candidate {
   city           String
   country        String
   portfolio      String?
+  github         String?
+  linkedin       String?
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
   resumeBase     ResumeBase?
@@ -78,25 +80,27 @@ model Education {
 //   isCurrent    Boolean
 // }
 
-enum SkillCategory {
-  Technical
-  Soft
-  Language
-  Tool
-  Backend
-  Frontend
-  DevOps
-  Database
-  Cloud
-  SoftSkills
-  Agile
+// Un sector productivo (p. ej. Tecnología / Desarrollo de Software, Salud,
+// Marketing y Ventas). Es una tabla y no un enum a propósito: el panorama de
+// demanda laboral cambia con el tiempo y así se pueden agregar o editar
+// sectores sin necesidad de una migración de Prisma.
+model Sector {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  description String?
+  skills      Skill[]
 }
 
 model Skill {
   id          String            @id @default(uuid())
   name        String            @unique
   description String
-  category    SkillCategory
+  sector      Sector            @relation(fields: [sectorId], references: [id])
+  sectorId    String
+  // Subcategoría dentro del sector (p. ej. dentro de Tecnología: Backend,
+  // Frontend, DevOps...). Es texto libre porque cada sector puede definir su
+  // propia taxonomía de subcategorías.
+  category    String
   resumes     ResumeBaseSkill[]
   jobOffers   JobOfferSkill[]
 }
@@ -136,6 +140,10 @@ model Project {
   resumeBaseId String
   title        String
   role         String
+  // Enlace único al repositorio de evidencias del proyecto (GitHub, Drive,
+  // portafolio...). Respaldan a todos los logros del proyecto, así cada logro
+  // no tiene que repetir el mismo enlace.
+  evidenceUrl  String?
   achievements Achievement[]
 }
 
@@ -145,7 +153,6 @@ model Achievement {
   projectId   String
   description String
   metric      String?
-  evidence    String
 }
 
 enum LanguageLevel {

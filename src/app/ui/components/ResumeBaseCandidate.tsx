@@ -8,11 +8,12 @@ import type {
 import type { EducationType } from "@/domain/entities/Education";
 import type { LanguageLevel } from "@/domain/entities/Language";
 import { PrinterIcon } from '@heroicons/react/20/solid'
+import { Fragment } from "react";
 import { CV_DOCUMENT_ID } from "@/app/ui/resume-theme/ThemeInitScript";
 import ResumeThemeControls from "@/app/ui/resume-theme/ResumeThemeControls";
 import { useResumeTheme } from "@/app/ui/resume-theme/useResumeTheme";
 
-const MONTH_YEAR_FORMAT = new Intl.DateTimeFormat("es", { month: "short", year: "numeric" });
+const MONTH_YEAR_FORMAT = new Intl.DateTimeFormat("es", { month: "short", year: "numeric", timeZone: "UTC" });
 
 const EDUCATION_TYPE_LABEL: Record<EducationType, string> = {
     Academic: "Formación académica",
@@ -59,6 +60,15 @@ function formatSalary(amount: number, currency: string): string {
     }
 }
 
+// Enlaces como texto visible (el ATS lee el texto, no el href) y clicables en el PDF.
+function EvidenceLink({ label, url }: { label: string, url: string }) {
+    return (
+        <p className="cv-body mt-1 break-all text-cv-ink-soft">
+            { label }: <a href={ url } className="text-cv-ink-soft">{ url }</a>
+        </p>
+    );
+}
+
 function SectionTitle({ children }: { children: React.ReactNode }) {
     return (
         <h2 className="cv-section-title mb-3 border-b-2 border-cv-rule pb-1 text-cv-accent">
@@ -82,16 +92,23 @@ export default function ResumeBaseCandidate({ resumeBase }: { resumeBase: Resume
     const references = resumeBase.references ?? [];
     const skills = resumeBase.skills ?? [];
 
-    const softSkills = skills.filter(skill => skill.category === "Soft" || skill.category === "SoftSkills");
-    const technicalSkills = skills.filter(skill => skill.category !== "Soft" && skill.category !== "SoftSkills");
+    const skillsByCategory = new Map<string, typeof skills>();
+    for (const skill of skills) {
+        const category = skill.category ?? "Otras";
+        skillsByCategory.set(category, [...(skillsByCategory.get(category) ?? []), skill]);
+    }
+    const skillGroups = Array.from(skillsByCategory.entries());
 
-    const contactLine = [
-        candidate?.email,
-        candidate?.phone,
-        candidate?.secondaryPhone,
-        [candidate?.city, candidate?.country].filter(Boolean).join(", "),
-        candidate?.portfolio,
-    ].filter(Boolean).join(" · ");
+    // Los enlaces van como texto visible (lo que lee el ATS) y con href para que sean clicables en el PDF.
+    const contactItems: { text: string, href?: string }[] = [
+        { text: candidate?.email ?? "" },
+        { text: candidate?.phone ?? "" },
+        { text: candidate?.secondaryPhone ?? "" },
+        { text: [candidate?.city, candidate?.country].filter(Boolean).join(", ") },
+        { text: candidate?.portfolio ?? "", href: candidate?.portfolio ?? undefined },
+        { text: candidate?.github ?? "", href: candidate?.github ?? undefined },
+        { text: candidate?.linkedin ?? "", href: candidate?.linkedin ?? undefined },
+    ].filter((item) => item.text);
 
     return (
         <>
@@ -122,7 +139,10 @@ export default function ResumeBaseCandidate({ resumeBase }: { resumeBase: Resume
 
             {/* Documento imprimible: una sola columna, encabezados semánticos y texto real
                 (sin tablas, sin iconos, sin fondos de color) para máxima compatibilidad con
-                parsers ATS. Los colores y la tipografía llegan por variables CSS controladas
+                parsers ATS. Todo va alineado a la izquierda y en flujo de lectura: nada de
+                justify-between ni chips en fila, porque los parsers que leen por posición
+                separan el texto alineado a la derecha en otra "columna" y terminan asociando
+                fechas o niveles con la entrada equivocada. Los colores y la tipografía llegan por variables CSS controladas
                 por data-cv-palette/data-cv-font (ver globals.css y src/app/ui/resume-theme). */}
             <article
                 id={ CV_DOCUMENT_ID }
@@ -134,7 +154,16 @@ export default function ResumeBaseCandidate({ resumeBase }: { resumeBase: Resume
                 <header className="mb-6 border-b border-cv-rule pb-4">
                     <h1 className="cv-name text-cv-accent">{ candidate?.fullName }</h1>
                     <p className="cv-title mt-1 text-cv-ink">{ resumeBase.profession }</p>
-                    { contactLine && <p className="cv-body mt-3 text-cv-ink-soft">{ contactLine }</p> }
+                    { contactItems.length > 0 && (
+                        <p className="cv-body mt-3 text-cv-ink-soft">
+                            { contactItems.map((item, index) => (
+                                <Fragment key={ index }>
+                                    { index > 0 && " · " }
+                                    { item.href ? <a href={ item.href } className="text-cv-ink-soft">{ item.text }</a> : item.text }
+                                </Fragment>
+                            )) }
+                        </p>
+                    ) }
                 </header>
 
                 { summary && (
@@ -144,35 +173,19 @@ export default function ResumeBaseCandidate({ resumeBase }: { resumeBase: Resume
                     </section>
                 ) }
 
-                { technicalSkills.length > 0 && (
+                { skillGroups.length > 0 && (
                     <section className="cv-entry mb-6">
-                        <SectionTitle>Habilidades técnicas</SectionTitle>
-                        <div className="flex flex-wrap gap-2">
-                            { technicalSkills.map(skill => (
-                                <span
-                                    key={ skill.id }
-                                    className="cv-body inline-flex items-center rounded-md border border-cv-rule px-2.5 py-1 text-cv-ink"
-                                >
-                                    { skill.name }
-                                    { skill.level && ` · ${ skill.level }` }
-                                    { skill.yearsExperience ? ` (${ skill.yearsExperience } ${ skill.yearsExperience === 1 ? "año" : "años" })` : "" }
-                                </span>
-                            )) }
-                        </div>
-                    </section>
-                ) }
-
-                { softSkills.length > 0 && (
-                    <section className="cv-entry mb-6">
-                        <SectionTitle>Habilidades blandas</SectionTitle>
-                        <div className="flex flex-wrap gap-2">
-                            { softSkills.map(skill => (
-                                <span
-                                    key={ skill.id }
-                                    className="cv-body inline-flex items-center rounded-md border border-cv-rule px-2.5 py-1 text-cv-ink"
-                                >
-                                    { skill.name }
-                                </span>
+                        <SectionTitle>Habilidades</SectionTitle>
+                        <div className="space-y-1.5">
+                            { skillGroups.map(([category, items]) => (
+                                <p key={ category } className="cv-body text-cv-ink">
+                                    <span className="cv-heading text-cv-ink-soft">{ category }: </span>
+                                    { items.map(skill => [
+                                        skill.name,
+                                        skill.level && ` · ${ skill.level }`,
+                                        skill.yearsExperience ? ` (${ skill.yearsExperience } ${ skill.yearsExperience === 1 ? "año" : "años" })` : "",
+                                    ].filter(Boolean).join("")).join(", ") }
+                                </p>
                             )) }
                         </div>
                     </section>
@@ -184,10 +197,8 @@ export default function ResumeBaseCandidate({ resumeBase }: { resumeBase: Resume
                         <div className="space-y-4">
                             { projects.map(project => (
                                 <div key={ project.id } className="cv-entry">
-                                    <div className="flex flex-wrap items-baseline justify-between gap-x-3">
-                                        <h3 className="cv-heading text-cv-ink">{ project.title }</h3>
-                                        <span className="cv-heading text-cv-ink-soft">{ project.role }</span>
-                                    </div>
+                                    <h3 className="cv-heading text-cv-ink">{ project.title }</h3>
+                                    <p className="cv-heading text-cv-ink-soft">{ project.role }</p>
                                     { project.achievements.length > 0 && (
                                         <ul className="cv-body mt-2 list-disc space-y-1 pl-5 text-cv-ink">
                                             { project.achievements.map(achievement => (
@@ -196,13 +207,11 @@ export default function ResumeBaseCandidate({ resumeBase }: { resumeBase: Resume
                                                     { achievement.metric && (
                                                         <span className="font-semibold"> — { achievement.metric }</span>
                                                     ) }
-                                                    { achievement.evidence && (
-                                                        <span className="text-cv-ink-soft"> ({ achievement.evidence })</span>
-                                                    ) }
                                                 </li>
                                             )) }
                                         </ul>
                                     ) }
+                                    { project.evidenceUrl && <EvidenceLink label="Evidencias" url={ project.evidenceUrl }/> }
                                 </div>
                             )) }
                         </div>
@@ -215,13 +224,11 @@ export default function ResumeBaseCandidate({ resumeBase }: { resumeBase: Resume
                         <div className="space-y-4">
                             { experiences.map((experience: ExperienceResponseDTO) => (
                                 <div key={ experience.id } className="cv-entry">
-                                    <div className="flex flex-wrap items-baseline justify-between gap-x-3">
-                                        <h3 className="cv-heading text-cv-ink">{ experience.position }</h3>
-                                        <span className="cv-meta whitespace-nowrap text-cv-ink-soft">
-                                            { formatPeriod(experience.startDate, experience.finishDate) }
-                                        </span>
-                                    </div>
-                                    <p className="cv-heading text-cv-ink-soft">{ experience.company }</p>
+                                    <h3 className="cv-heading text-cv-ink">{ experience.position }</h3>
+                                    <p className="cv-heading text-cv-ink-soft">
+                                        { experience.company }
+                                        <span className="cv-meta"> | { formatPeriod(experience.startDate, experience.finishDate) }</span>
+                                    </p>
                                     { experience.responsibilities.length > 0 && (
                                         <ul className="cv-body mt-2 list-disc space-y-1 pl-5 text-cv-ink">
                                             { experience.responsibilities.map(responsibility => (
@@ -241,21 +248,15 @@ export default function ResumeBaseCandidate({ resumeBase }: { resumeBase: Resume
                         <div className="space-y-4">
                             { educations.map((education: EducationResponseDTO) => (
                                 <div key={ education.id } className="cv-entry">
-                                    <div className="flex flex-wrap items-baseline justify-between gap-x-3">
-                                        <h3 className="cv-heading text-cv-ink">{ education.title }</h3>
-                                        <span className="cv-meta whitespace-nowrap text-cv-ink-soft">
-                                            { formatPeriod(education.startDate, education.finishDate, education.isCurrent) }
-                                        </span>
-                                    </div>
+                                    <h3 className="cv-heading text-cv-ink">{ education.title }</h3>
                                     <p className="cv-heading text-cv-ink-soft">
                                         { education.academy } · { EDUCATION_TYPE_LABEL[education.type] }
+                                        <span className="cv-meta"> | { formatPeriod(education.startDate, education.finishDate, education.isCurrent) }</span>
                                     </p>
                                     { education.description && (
                                         <p className="cv-body mt-1 text-cv-ink">{ education.description }</p>
                                     ) }
-                                    { education.linkCredential && (
-                                        <p className="cv-body mt-1 break-all text-cv-ink-soft">{ education.linkCredential }</p>
-                                    ) }
+                                    { education.linkCredential && <EvidenceLink label="Credencial" url={ education.linkCredential }/> }
                                 </div>
                             )) }
                         </div>
@@ -267,12 +268,10 @@ export default function ResumeBaseCandidate({ resumeBase }: { resumeBase: Resume
                         <SectionTitle>Idiomas</SectionTitle>
                         <div className="divide-y divide-dashed divide-cv-rule">
                             { languages.map(language => (
-                                <div key={ language.id } className="flex flex-wrap justify-between gap-x-3 py-1.5">
+                                <p key={ language.id } className="cv-body py-1.5 text-cv-ink">
                                     <span className="cv-heading text-cv-ink">{ language.title }</span>
-                                    <span className="cv-meta text-cv-ink-soft">
-                                        { LANGUAGE_LEVEL_LABEL[language.level] } · { language.academy }
-                                    </span>
-                                </div>
+                                    <span className="cv-meta text-cv-ink-soft"> — { LANGUAGE_LEVEL_LABEL[language.level] } · { language.academy }</span>
+                                </p>
                             )) }
                         </div>
                     </section>

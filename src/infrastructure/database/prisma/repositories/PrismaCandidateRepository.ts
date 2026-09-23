@@ -23,6 +23,20 @@ export class PrismaCandidateRepository implements CandidateRepository {
         }
     }
 
+    async update(candidate: Candidate): Promise<Candidate> {
+        try {
+            const data = CandidateMapper.toPersistenceUpdate(candidate);
+            const updated = await prisma.candidate.update({ where: { id: candidate.id }, data });
+
+            return CandidateMapper.toDomain(updated);
+        } catch (error) {
+            throw PrismaErrorMapper.toDomainError(error, {
+                onUniqueConstraintViolation: () => new CandidateAlreadyExistsError(candidate.email),
+                onRecordNotFound: () => new CandidateNotFoundError(candidate.id ?? candidate.email),
+            });
+        }
+    }
+
     async findAll(): Promise<Candidate[]> {
         try {
             const candidates = await prisma.candidate.findMany();

@@ -1,6 +1,7 @@
 import { ResumeBase } from "@/domain/entities";
 import { CandidateNotFoundError } from "@/domain/errors/CandidateNotFoundError";
 import { ResumeBaseAlreadyExistsError } from "@/domain/errors/ResumeBaseAlreadyExistsError";
+import { ResumeBaseNotFoundError } from "@/domain/errors/ResumeBaseNotFoundError";
 import { ResumeBaseRepository } from "@/domain/repositories/ResumeBaseRepository";
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/infrastructure/database/prisma/client";
@@ -14,7 +15,7 @@ const RESUME_BASE_INCLUDE = {
     projects: { include: { achievements: true } },
     languages: true,
     references: true,
-    skills: { include: { skill: true } },
+    skills: { include: { skill: { include: { sector: true } } } },
 } satisfies Prisma.ResumeBaseInclude;
 
 export class PrismaResumeBaseRepository implements ResumeBaseRepository {
@@ -32,6 +33,38 @@ export class PrismaResumeBaseRepository implements ResumeBaseRepository {
                 onUniqueConstraintViolation: () => new ResumeBaseAlreadyExistsError(
                     resumeBase.candidate?.email ?? resumeBase.candidateId,
                 ),
+                onForeignKeyConstraintViolation: () => new CandidateNotFoundError(resumeBase.candidateId),
+            });
+        }
+    }
+
+    // La edición sustituye la hoja de vida completa. Como el esquema no define
+    // `onDelete: Cascade`, borramos las filas hijas en orden (nietos antes que
+    // hijos) y volvemos a crearlas dentro de una única transacción.
+    async update(resumeBase: ResumeBase): Promise<ResumeBase> {
+        const id = resumeBase.id!;
+
+        try {
+            const data = ResumeBaseMapper.toPersistenceUpdate(resumeBase);
+
+            const operations = await prisma.$transaction([
+                prisma.responsibility.deleteMany({ where: { experience: { resumeBaseId: id } } }),
+                prisma.achievement.deleteMany({ where: { project: { resumeBaseId: id } } }),
+                prisma.experience.deleteMany({ where: { resumeBaseId: id } }),
+                prisma.project.deleteMany({ where: { resumeBaseId: id } }),
+                prisma.education.deleteMany({ where: { resumeBaseId: id } }),
+                prisma.language.deleteMany({ where: { resumeBaseId: id } }),
+                prisma.reference.deleteMany({ where: { resumeBaseId: id } }),
+                prisma.resumeBaseSkill.deleteMany({ where: { resumeBaseId: id } }),
+                prisma.resumeBase.update({ where: { id }, data, include: RESUME_BASE_INCLUDE }),
+            ]);
+
+            const updated = operations[8];
+
+            return ResumeBaseMapper.toDomain(updated);
+        } catch (error) {
+            throw PrismaErrorMapper.toDomainError(error, {
+                onRecordNotFound: () => new ResumeBaseNotFoundError(resumeBase.candidateId),
                 onForeignKeyConstraintViolation: () => new CandidateNotFoundError(resumeBase.candidateId),
             });
         }

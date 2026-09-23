@@ -29,12 +29,12 @@ const CreateExperienceSchema = zod.object({
 const CreateAchievementSchema = zod.object({
     description: zod.string('La descripción es requisito').trim().min(1),
     metric: zod.string().trim().optional(),
-    evidence: zod.string('La evidencia es requisito').trim().min(1),
 });
 
 const CreateProjectSchema = zod.object({
     title: zod.string('El título es requisito').trim().min(1),
     role: zod.string('El rol es requisito').trim().min(1),
+    evidenceUrl: zod.url('Formato no válido para el enlace de evidencias').trim().optional(),
     achievements: zod.array(CreateAchievementSchema).optional(),
 });
 

@@ -14,6 +14,8 @@ export interface CandidateProps {
     city: string;
     country: string;
     portfolio?: string | null;
+    github?: string | null;
+    linkedin?: string | null;
     createdAt?: Date;
     updatedAt?: Date;
     resumeBase?: ResumeBase | null;
@@ -28,6 +30,8 @@ export class Candidate {
     city: string;
     country: string;
     portfolio?: string | null;
+    github?: string | null;
+    linkedin?: string | null;
     createdAt?: Date;
     updatedAt?: Date;
     resumeBase?: ResumeBase | null;
@@ -43,6 +47,8 @@ export class Candidate {
         this.city = props.city;
         this.country = props.country;
         this.portfolio = props.portfolio;
+        this.github = props.github;
+        this.linkedin = props.linkedin;
         this.createdAt = props.createdAt ?? new Date();
         this.updatedAt = props.updatedAt ?? new Date();
         this.resumeBase = props.resumeBase;

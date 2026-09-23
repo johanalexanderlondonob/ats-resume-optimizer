@@ -1,34 +1,26 @@
 import { randomUUID } from "node:crypto";
 import type { JobOfferSkill } from './JobOfferSkill';
 import type { ResumeBaseSkill } from './ResumeBaseSkill';
+import type { Sector } from './Sector';
 
 export interface SkillProps {
     name: string;
     description: string;
-    category: SkillCategory;
+    sectorId: string;
+    sector?: Sector | null;
+    category: string;
     resumes?: ResumeBaseSkill[];
     jobOffers?: JobOfferSkill[];
     id?: string;
 }
 
-export type SkillCategory =
-    | 'Technical'
-    | 'Soft'
-    | 'Language'
-    | 'Tool'
-    | 'Backend'
-    | 'Frontend'
-    | 'DevOps'
-    | 'Database'
-    | 'Cloud'
-    | 'SoftSkills'
-    | 'Agile';
-
 export class Skill {
     id?: string;
     name: string;
     description: string;
-    category: SkillCategory;
+    sectorId: string;
+    sector?: Sector | null;
+    category: string;
     resumes?: ResumeBaseSkill[];
     jobOffers?: JobOfferSkill[];
 
@@ -37,6 +29,8 @@ export class Skill {
         this.id = props.id;
         this.name = props.name;
         this.description = props.description;
+        this.sectorId = props.sectorId;
+        this.sector = props.sector;
         this.category = props.category;
         this.resumes = props.resumes;
         this.jobOffers = props.jobOffers;

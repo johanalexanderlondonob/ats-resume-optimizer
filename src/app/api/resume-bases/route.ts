@@ -1,15 +1,19 @@
 import type { CreateResumeBaseDTO } from "@/application/dto/CreateResumeBaseDTO";
+import type { UpdateResumeBaseDTO } from "@/application/dto/UpdateResumeBaseDTO";
 import { CreateResumeBaseUseCase } from "@/application/use-cases/resume-bases/CreateResumeBaseUseCase";
+import { UpdateResumeBaseUseCase } from "@/application/use-cases/resume-bases/UpdateResumeBaseUseCase";
 import { PrismaCandidateRepository } from "@/infrastructure/database/prisma/repositories/PrismaCandidateRepository";
 import { PrismaResumeBaseRepository } from "@/infrastructure/database/prisma/repositories/PrismaResumeBaseRepository";
 import { HttpErrorMapper } from "@/presentation/http/HttpErrorMapper";
 import { ResumeBaseResponseMapper } from "@/presentation/mappers/ResumeBaseResponseMapper";
 import { CreateResumeBaseSchema } from "@/presentation/validators/CreateResumeBaseSchema";
+import { UpdateResumeBaseSchema } from "@/presentation/validators/UpdateResumeBaseSchema";
 import { NextRequest, NextResponse } from "next/server";
 
 const candidateRepository = new PrismaCandidateRepository();
 const resumeBaseRepository = new PrismaResumeBaseRepository();
 const createResumeBaseUseCase = new CreateResumeBaseUseCase(resumeBaseRepository, candidateRepository);
+const updateResumeBaseUseCase = new UpdateResumeBaseUseCase(resumeBaseRepository, candidateRepository);
 
 export async function GET(request: NextRequest) {
     const candidateId = request.nextUrl.searchParams.get("candidateId");
@@ -80,6 +84,47 @@ export async function POST(request: NextRequest) {
                 message: "Hoja de vida creada satisfactoriamente",
             },
             { status: 201 });
+
+    } catch (error) {
+        return HttpErrorMapper.toResponse(error);
+    }
+}
+
+export async function PUT(request: NextRequest) {
+    let body: UpdateResumeBaseDTO;
+
+    try {
+        body = (await request.json()) as UpdateResumeBaseDTO;
+    } catch {
+        return NextResponse.json(
+            { error: { code: "INVALID_JSON", message: "El cuerpo de la petición debe tener un JSON válido" } },
+            { status: 400 },
+        );
+    }
+
+    try {
+        const validation = UpdateResumeBaseSchema.safeParse(body);
+
+        if (!validation.success) {
+            return NextResponse.json({
+                error: {
+                    code: "VALIDATION_ERROR",
+                    message: "Error de validación",
+                    issues: validation.error.issues.map(issue => ({
+                        field: issue.path[0],
+                        message: issue.message,
+                    })),
+                },
+            })
+        }
+
+        const resumeBase = await updateResumeBaseUseCase.execute(validation.data);
+
+        return NextResponse.json({
+                id: resumeBase.id,
+                message: "Hoja de vida actualizada satisfactoriamente",
+            },
+            { status: 200 });
 
     } catch (error) {
         return HttpErrorMapper.toResponse(error);

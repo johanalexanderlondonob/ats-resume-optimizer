@@ -16,8 +16,25 @@ export class CandidateMapper {
             country: candidate.country,
             secondaryPhone: candidate.secondaryPhone,
             portfolio: candidate.portfolio,
+            github: candidate.github,
+            linkedin: candidate.linkedin,
             createdAt: candidate.createdAt,
             updatedAt: candidate.updatedAt,
+        }
+    }
+
+    // El id y createdAt son inmutables; updatedAt lo administra Prisma con @updatedAt.
+    static toPersistenceUpdate(candidate: Candidate): Prisma.CandidateUpdateInput {
+        return {
+            fullName: candidate.fullName,
+            email: candidate.email,
+            phone: candidate.phone,
+            city: candidate.city,
+            country: candidate.country,
+            secondaryPhone: candidate.secondaryPhone,
+            portfolio: candidate.portfolio,
+            github: candidate.github,
+            linkedin: candidate.linkedin,
         }
     }
 }

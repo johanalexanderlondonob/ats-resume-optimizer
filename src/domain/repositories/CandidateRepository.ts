@@ -3,6 +3,8 @@ import { Candidate } from "../entities";
 export interface CandidateRepository {
     save(candidate: Candidate): Promise<Candidate>;
 
+    update(candidate: Candidate): Promise<Candidate>;
+
     findAll(): Promise<Candidate[]>;
 
     findById(id: string): Promise<Candidate | null>;

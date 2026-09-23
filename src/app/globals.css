@@ -111,7 +111,9 @@ body {
   font-size: var(--cv-size-section);
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1.4px;
+  /* Sin letter-spacing: Chrome posiciona cada letra por separado y los parsers ATS
+     extraen "E X P E R I E N C I A", sin reconocer el encabezado de sección. */
+  letter-spacing: 0;
   page-break-after: avoid;
   break-after: avoid;
 }

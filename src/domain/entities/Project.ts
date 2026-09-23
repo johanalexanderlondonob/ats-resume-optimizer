@@ -5,6 +5,7 @@ import type { ResumeBase } from './ResumeBase';
 export interface ProjectProps {
     title: string;
     role: string;
+    evidenceUrl?: string | null;
     achievements: Achievement[];
     resumeBase: ResumeBase;
     resumeBaseId: string;
@@ -17,6 +18,7 @@ export class Project {
     resumeBaseId: string;
     title: string;
     role: string;
+    evidenceUrl?: string | null;
     achievements: Achievement[];
 
     constructor(
@@ -27,6 +29,7 @@ export class Project {
         this.resumeBaseId = props.resumeBaseId;
         this.title = props.title;
         this.role = props.role;
+        this.evidenceUrl = props.evidenceUrl;
         this.achievements = props.achievements ?? [];
     }
 

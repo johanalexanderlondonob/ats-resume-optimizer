@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test:candidate": "tsx scripts/test-candidate.ts",
-    "test:resume-base": "tsx scripts/test-resume-base.ts"
+    "test:resume-base": "tsx scripts/test-resume-base.ts",
+    "seed:skills": "tsx scripts/seed-skills.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.7.1",

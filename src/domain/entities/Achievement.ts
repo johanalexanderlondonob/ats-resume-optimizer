@@ -6,7 +6,6 @@ export interface AchievementProps {
     projectId: string;
     description: string;
     metric?: string | null;
-    evidence: string;
     id?: string;
 }
 
@@ -16,7 +15,6 @@ export class Achievement {
     projectId: string;
     description: string;
     metric?: string | null;
-    evidence: string;
 
     constructor(
         props: AchievementProps,) {
@@ -25,7 +23,6 @@ export class Achievement {
         this.projectId = props.projectId;
         this.description = props.description;
         this.metric = props.metric;
-        this.evidence = props.evidence;
     }
 
     static create(props: AchievementProps) {
@@ -48,9 +45,5 @@ export class Achievement {
 
     public updateMetric(metric: string | null) {
         this.metric = metric;
-    }
-
-    public updateEvidence(evidence: string) {
-        this.evidence = evidence;
     }
 }
